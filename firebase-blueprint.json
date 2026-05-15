@@ -1,0 +1,48 @@
+{
+  "entities": {
+    "Employee": {
+      "title": "Employee",
+      "description": "Information about a school employee.",
+      "type": "object",
+      "properties": {
+        "name": { "type": "string", "description": "Full name of the employee." },
+        "role": { "type": "string", "description": "Job function." },
+        "rg": { "type": "string", "description": "RG identification number." },
+        "birthDate": { "type": "string", "format": "date", "description": "Birth date in DD/MM/AAAA format." },
+        "cpf": { "type": "string", "description": "CPF identification number." },
+        "address": { "type": "string", "description": "Street address." },
+        "number": { "type": "string", "description": "Building number." },
+        "phone": { "type": "string", "description": "Phone number." },
+        "createdAt": { "type": "string", "format": "date-time" },
+        "updatedAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["name", "role", "rg", "birthDate", "cpf", "address", "number", "phone"]
+    },
+    "Record": {
+      "title": "Employee Record",
+      "description": "An event related to an employee (absence, vacation, off day, certificate, or point).",
+      "type": "object",
+      "properties": {
+        "employeeId": { "type": "string" },
+        "type": { "type": "string", "enum": ["abonada", "ferias", "folga", "atestado", "ponto"] },
+        "date": { "type": "string", "format": "date" },
+        "endDate": { "type": "string", "format": "date" },
+        "attachmentBase64": { "type": "string", "description": "Base64 encoded scanned certificate." },
+        "notes": { "type": "string" },
+        "status": { "type": "string", "enum": ["pending", "approved", "rejected", "closed"] },
+        "createdAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["employeeId", "type", "date"]
+    }
+  },
+  "firestore": {
+    "employees": {
+      "schema": "Employee",
+      "description": "Storage for employee profiles."
+    },
+    "records": {
+      "schema": "Record",
+      "description": "Storage for employee events and reports."
+    }
+  }
+}

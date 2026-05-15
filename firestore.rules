@@ -1,0 +1,81 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // 0. Global Safety Net
+    match /{document=**} {
+      allow read, write: if false;
+    }
+
+    // Connection Test Document
+    match /test/connection {
+      allow read: if true;
+    }
+
+    // Helpers
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    function isOwner(userId) {
+      return isSignedIn() && request.auth.uid == userId;
+    }
+
+    function isValidId(id) {
+      return id is string && id.size() <= 128 && id.matches('^[a-zA-Z0-9_\\-]+$');
+    }
+
+    function incoming() {
+      return request.resource.data;
+    }
+
+    function existing() {
+      return resource.data;
+    }
+
+    // 1. Employee Validation
+    function isValidEmployee(data) {
+      return data.keys().hasAll(['name', 'role', 'rg', 'birthDate', 'cpf', 'address', 'number', 'phone', 'createdAt', 'updatedAt'])
+        && data.keys().size() == 10
+        && data.name is string && data.name.size() <= 200
+        && data.role is string && data.role.size() <= 100
+        && data.rg is string && data.rg.size() <= 20
+        && data.birthDate is string && data.birthDate.size() <= 10
+        && data.cpf is string && data.cpf.size() <= 15
+        && data.address is string && data.address.size() <= 300
+        && data.number is string && data.number.size() <= 20
+        && data.phone is string && data.phone.size() <= 20
+        && data.createdAt == request.time
+        && data.updatedAt == request.time;
+    }
+
+    match /employees/{employeeId} {
+      allow read: if isSignedIn();
+      allow create: if isSignedIn() && isValidEmployee(incoming()) && isValidId(employeeId);
+      allow update: if isSignedIn() && (
+        incoming().diff(existing()).affectedKeys().hasOnly(['name', 'role', 'rg', 'birthDate', 'cpf', 'address', 'number', 'phone', 'updatedAt'])
+        && incoming().updatedAt == request.time
+      );
+      allow delete: if isSignedIn(); // Assuming admins only, but simplifying for now
+    }
+
+    // 2. Record Validation
+    function isValidRecord(data) {
+      return data.keys().hasAll(['employeeId', 'type', 'date', 'status', 'createdAt'])
+        && data.employeeId is string && isValidId(data.employeeId)
+        && data.type in ['abonada', 'ferias', 'folga', 'atestado', 'ponto']
+        && data.date is string && data.date.size() <= 10
+        && data.status in ['pending', 'approved', 'rejected', 'closed']
+        && data.createdAt == request.time;
+    }
+
+    match /records/{recordId} {
+      allow read: if isSignedIn();
+      allow create: if isSignedIn() && isValidRecord(incoming()) && isValidId(recordId);
+      allow update: if isSignedIn() && (
+        incoming().diff(existing()).affectedKeys().hasAny(['status', 'endDate', 'attachmentBase64', 'notes'])
+        // Specific checks can be added here
+      );
+      allow delete: if isSignedIn();
+    }
+  }
+}

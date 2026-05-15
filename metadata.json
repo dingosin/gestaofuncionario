@@ -1,0 +1,6 @@
+{
+  "name": "Gestão Escolar - Funcionários",
+  "description": "Sistema de gestão de funcionários escolares com cadastro completo, controle de ponto, registro de atestados e gerador de relatórios.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
