@@ -34,8 +34,8 @@ service cloud.firestore {
 
     // 1. Employee Validation
     function isValidEmployee(data) {
-      return data.keys().hasAll(['name', 'role', 'rg', 'birthDate', 'cpf', 'address', 'number', 'phone', 'createdAt', 'updatedAt'])
-        && data.keys().size() == 10
+      return data.keys().hasAll(['name', 'role', 'rg', 'birthDate', 'cpf', 'address', 'number', 'phone', 'sector', 'workHours', 'createdAt', 'updatedAt'])
+        && data.keys().size() == 12
         && data.name is string && data.name.size() <= 200
         && data.role is string && data.role.size() <= 100
         && data.rg is string && data.rg.size() <= 20
@@ -44,6 +44,8 @@ service cloud.firestore {
         && data.address is string && data.address.size() <= 300
         && data.number is string && data.number.size() <= 20
         && data.phone is string && data.phone.size() <= 20
+        && data.sector is string && data.sector.size() <= 200
+        && data.workHours is string && data.workHours.size() <= 200
         && data.createdAt == request.time
         && data.updatedAt == request.time;
     }
@@ -52,7 +54,7 @@ service cloud.firestore {
       allow read: if isSignedIn();
       allow create: if isSignedIn() && isValidEmployee(incoming()) && isValidId(employeeId);
       allow update: if isSignedIn() && (
-        incoming().diff(existing()).affectedKeys().hasOnly(['name', 'role', 'rg', 'birthDate', 'cpf', 'address', 'number', 'phone', 'updatedAt'])
+        incoming().diff(existing()).affectedKeys().hasOnly(['name', 'role', 'rg', 'birthDate', 'cpf', 'address', 'number', 'phone', 'sector', 'workHours', 'updatedAt'])
         && incoming().updatedAt == request.time
       );
       allow delete: if isSignedIn(); // Assuming admins only, but simplifying for now
@@ -76,6 +78,10 @@ service cloud.firestore {
         // Specific checks can be added here
       );
       allow delete: if isSignedIn();
+    }
+
+    match /settings/{settingId} {
+      allow read, write: if isSignedIn();
     }
   }
 }

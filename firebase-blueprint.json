@@ -13,10 +13,12 @@
         "address": { "type": "string", "description": "Street address." },
         "number": { "type": "string", "description": "Building number." },
         "phone": { "type": "string", "description": "Phone number." },
+        "sector": { "type": "string", "description": "Sector/Department or Work Location." },
+        "workHours": { "type": "string", "description": "Assigned work shift hours/schedule." },
         "createdAt": { "type": "string", "format": "date-time" },
         "updatedAt": { "type": "string", "format": "date-time" }
       },
-      "required": ["name", "role", "rg", "birthDate", "cpf", "address", "number", "phone"]
+      "required": ["name", "role", "rg", "birthDate", "cpf", "address", "number", "phone", "sector", "workHours"]
     },
     "Record": {
       "title": "Employee Record",
